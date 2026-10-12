@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync, cpSync, mkdirSync, readdirSync, lstatSync } from 'node:fs';
+import { readFileSync, writeFileSync, cpSync, mkdtempSync, existsSync, renameSync, readdirSync, lstatSync } from 'node:fs';
 import { resolve, dirname, relative, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -22,22 +22,25 @@ function audit(folder) {
     if (info.isDirectory()) audit(path);
     else {
       const content = readFileSync(path).toString('latin1').toLowerCase();
-      const excludedName = String.fromCharCode(107, 105, 114, 105, 108, 108);
-      if (content.includes(excludedName) || /\/users\/|\/var\/folders\/|github_pat_|ghp_|-----begin.*private key|\b(?:api_key|oauth_token|access_token)\s*[:=]\s*["'][^"']+/i.test(content)) throw new Error('Privacy check failed for ' + relative(repository, path));
+      const privateText = (process.env.ERIKA_PRIVATE_TEXT || '').split(',').map(value => value.trim().toLowerCase()).filter(Boolean);
+      if (privateText.some(value => content.includes(value)) || /\/users\/|\/var\/folders\/|github_pat_|ghp_|-----begin.*private key|\b(?:api_key|oauth_token|access_token)\s*[:=]\s*["'][^"']+/i.test(content)) throw new Error('Privacy check failed for ' + relative(repository, path));
     }
   }
 }
 audit(join(repository, 'assets')); audit(join(repository, 'media'));
 const html = readFileSync(join(repository, 'club.html'), 'utf8');
 if (/\/users\/|\/var\/folders\//i.test(html)) throw new Error('Private path in HTML.');
-const output = join(workspace, 'site-dist');
-mkdirSync(output, { recursive: true });
+const output = mkdtempSync(join(workspace, 'site-dist-build-'));
 writeFileSync(join(output, 'index.html'), html);
-cpSync(join(repository, 'assets'), join(output, 'assets'), { recursive: true });
+const rootAssets = ['favicon.svg', 'site.css', 'portfolio.css', 'site.js', 'avatar.jpg', 'portrait.jpg', 'city.jpg', 'family.jpg', 'parkour.jpg', 'mountains.jpg', 'cover-v2.png'];
+for (const name of rootAssets) cpSync(join(repository, 'assets', name), join(output, 'assets', name), { recursive: true });
+for (const name of ['studio', 'posters', 'previews', 'type', 'lookbook', 'studies']) cpSync(join(repository, 'assets', name), join(output, 'assets', name), { recursive: true });
 cpSync(join(repository, 'media'), join(output, 'media'), { recursive: true });
 audit(output);
-if (readdirSync(output).some(name => !['index.html', 'assets', 'media', '_headers'].includes(name))) throw new Error('Unexpected file in deployment bundle.');
-writeFileSync(join(output, '_headers'), '/assets/token.json\n  Cache-Control: no-store\n');
+const destination = join(workspace, 'site-dist');
+if (existsSync(destination)) renameSync(destination, join(workspace, `site-dist-backup-${Date.now()}`));
+renameSync(output, destination);
+if (args.includes('--build-only')) process.exit(0);
 function deploy(dryRun) {
   const command = [wrangler, 'deploy', '--config', configPath];
   if (dryRun) command.push('--dry-run');

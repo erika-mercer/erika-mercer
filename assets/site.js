@@ -1,10 +1,8 @@
-import { resolveTokenConfig } from './token-config.mjs';
-
 (() => {
   'use strict';
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
-  const views = ['world', 'studio', 'wardrobe', 'reels', 'token'];
+  const views = ['world', 'studio', 'wardrobe', 'reels', 'making'];
   const scenes = {
     paper: { name: 'Paper studio', image: null, id: 'SCENE_001' },
     rooftop: { name: 'Rooftop sunset', image: 'assets/studio/scene-rooftop.webp', id: 'SCENE_002' },
@@ -16,6 +14,10 @@ import { resolveTokenConfig } from './token-config.mjs';
     pinkline: { name: 'Pinkline', image: 'assets/studio/erika-pinkline.webp' }
   };
   const films = [
+    { id: 'reference-in-motion', name: 'Reference in motion', category: [], label: 'Reference + film', time: '00:16', poster: 'assets/studies/reference-in-motion.jpg', src: 'media/studies/reference-in-motion.mp4', description: 'A moving scene beside a complete character reference.', study: true },
+    { id: 'same-face-new-frame', name: 'Same face, new frame', category: [], label: 'Character study', time: '00:12', poster: 'assets/studies/same-face-new-frame.jpg', src: 'media/studies/same-face-new-frame.mp4', description: 'The familiar character, explored through motion and detail.', study: true },
+    { id: 'nine-scenes', name: 'Nine little worlds', category: [], label: 'Scene mosaic', time: '00:12', poster: 'assets/studies/nine-scenes.jpg', src: 'media/studies/nine-scenes.mp4', description: 'A moving contact sheet of moments from the archive.', study: true },
+    { id: 'scene-atlas', name: 'The scene atlas', category: [], label: 'Visual anthology', time: '00:16', poster: 'assets/studies/scene-atlas.jpg', src: 'media/studies/scene-atlas.mp4', description: 'A different arrangement of the character’s unfolding world.', study: true },
     { id: 'mercer-genetics', name: 'Mercer genetics', category: ['action'], label: 'Action', time: '00:07', poster: 'assets/parkour.jpg', src: 'media/mercer-genetics.mp4', description: 'A rooftop gap. A little confidence. An impossible landing.' },
     { id: 'runs-in-the-family', name: 'Runs in the family', category: ['dance'], label: 'Two Mercers', time: '00:12', poster: 'assets/family.jpg', src: 'media/runs-in-the-family.mp4', description: 'Two Mercers, one room and a shared sense of attitude.' },
     { id: 'move-mountains', name: 'Move mountains', category: ['dance', 'outside'], label: 'Dolomites', time: '00:05', poster: 'assets/mountains.jpg', src: 'media/move-mountains.mp4', description: 'A change of scenery. The same unmistakable character.' },
@@ -40,6 +42,7 @@ import { resolveTokenConfig } from './token-config.mjs';
   }
   normalizeState();
   let activeView = 'world';
+  let currentProcess = 'identity';
   let favorites = new Set(store.read('erika-club-favorites-v1', []).filter(v => looks[v]));
   let wardrobeFilter = 'all';
   let currentFilm = null;
@@ -48,6 +51,7 @@ import { resolveTokenConfig } from './token-config.mjs';
   const heroVideo = $('#hero-video');
   const cinemaVideo = $('#cinema-video');
   const cinema = $('#cinema-dialog');
+  const processVideo = $('#process-video');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let motionPaused = store.read('erika-club-motion-paused', reducedMotion.matches);
 
@@ -61,6 +65,8 @@ import { resolveTokenConfig } from './token-config.mjs';
   function startHero() {
     if (activeView === 'world' && !motionPaused && !cinema.open) heroVideo.play().catch(() => {});
     else heroVideo.pause();
+    if (activeView === 'making' && currentProcess === 'motion' && !motionPaused && !cinema.open) processVideo.play().catch(() => {});
+    else processVideo.pause();
   }
   function setMotion(value) {
     motionPaused = value;
@@ -78,6 +84,7 @@ import { resolveTokenConfig } from './token-config.mjs';
     if (!views.includes(name)) return;
     if (activeView !== name) {
       if (cinema.open) closeCinema();
+      if ($('#sheet-dialog').open) closeSheet();
       if ($('#studio-stage').classList.contains('expanded')) toggleStage(false);
     }
     activeView = name;
@@ -91,9 +98,8 @@ import { resolveTokenConfig } from './token-config.mjs';
     $$('.reel-preview-video').forEach(v => v.pause());
     startHero();
     if (name === 'studio') updateStudio(false);
-    if (name === 'token') refreshToken();
     if (scroll) window.scrollTo({ top: 0, behavior: 'instant' });
-    document.title = name === 'world' ? 'Erika Mercer · The other Mercer' : `${({studio:'Studio',wardrobe:'Wardrobe',reels:'Film room',token:'Erika Club token'})[name]} · Erika Mercer`;
+    document.title = name === 'world' ? 'Erika Mercer · The other Mercer' : `${({studio:'Studio',wardrobe:'Lookbook',reels:'Film room',making:'Making of'})[name]} · Erika Mercer`;
   }
   function route() {
     const fragment = window.location.hash.slice(1) || 'world';
@@ -111,6 +117,9 @@ import { resolveTokenConfig } from './token-config.mjs';
       if (panel) {
         setView(panel.id.replace('view-', ''), { scroll: false });
         requestAnimationFrame(() => target.scrollIntoView({ behavior: motionPaused ? 'instant' : 'smooth', block: 'start' }));
+      } else {
+        setView('world');
+        history.replaceState(null, '', `${location.pathname}${location.search}#world`);
       }
     }
   }
@@ -147,7 +156,7 @@ import { resolveTokenConfig } from './token-config.mjs';
     if (on) heroVideo.play().catch(() => toast('Press the video to start playback.'));
   });
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { heroVideo.pause(); $$('.reel-preview-video').forEach(v => v.pause()); }
+    if (document.hidden) { processVideo.pause(); heroVideo.pause(); $$('.reel-preview-video').forEach(v => v.pause()); }
     else startHero();
   });
 
@@ -255,7 +264,7 @@ import { resolveTokenConfig } from './token-config.mjs';
       const h = 1030, w = h * figure.width / figure.height;
       ctx.drawImage(figure, (1080 - w) / 2, 148, w, h);
       ctx.textAlign = 'left'; ctx.font = 'bold 24px Courier New'; ctx.fillStyle = background ? '#eeeae2' : '#101014';
-      ctx.fillText('ERIKA CLUB / MAKE A SCENE', 62, 83);
+      ctx.fillText('ERIKA MERCER / MAKE A SCENE', 62, 83);
       ctx.fillStyle = '#f14c9d'; ctx.fillRect(62, 113, 150, 5);
       ctx.fillStyle = '#101014'; ctx.font = '56px Mercer';
       ctx.fillText(snapshot.cast === 'erika' ? 'Erika Mercer' : 'Derek Mercer', 48, 1258);
@@ -264,7 +273,7 @@ import { resolveTokenConfig } from './token-config.mjs';
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .9));
       if (!blob) throw new Error('Image export unavailable');
       const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url;
-      link.download = `erika-club-${snapshot.cast}-${snapshot.look}-${snapshot.scene}.jpg`;
+      link.download = `erika-mercer-${snapshot.cast}-${snapshot.look}-${snapshot.scene}.jpg`;
       document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000);
       toast('Your scene card is ready.');
     } catch { toast('The card could not be created. Please try again after the images load.'); }
@@ -313,7 +322,7 @@ import { resolveTokenConfig } from './token-config.mjs';
   }));
   updateFavorites();
 
-  $('#reels-grid').innerHTML = films.map((film, index) => `<article class="reel" id="${film.id}" data-categories="${film.category.join(' ')}"><button class="reel-media" data-open-reel="${film.id}" aria-label="Watch ${film.name}"><img src="${film.poster}" alt="Scene from ${film.name}" loading="lazy"><video class="reel-preview-video" data-src="${film.src}" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video><span class="reel-category">${String(index + 1).padStart(2, '0')} / ${film.label}</span><span class="reel-play"><svg aria-hidden="true"><use href="#i-play"/></svg></span><span class="reel-time">${film.time}</span></button><div class="reel-info"><h2>${film.name}</h2><p>${film.description}</p><button class="text-link" data-open-reel="${film.id}">Watch full scene <svg aria-hidden="true"><use href="#i-diagonal"/></svg></button></div></article>`).join('');
+  $('#reels-grid').innerHTML = films.filter(film => !film.study).map((film, index) => `<article class="reel" id="${film.id}" data-categories="${film.category.join(' ')}"><button class="reel-media" data-open-reel="${film.id}" aria-label="Watch ${film.name}"><img src="${film.poster}" alt="Scene from ${film.name}" loading="lazy"><video class="reel-preview-video" data-src="${film.src}" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video><span class="reel-category">${String(index + 1).padStart(2, '0')} / ${film.label}</span><span class="reel-play"><svg aria-hidden="true"><use href="#i-play"/></svg></span><span class="reel-time">${film.time}</span></button><div class="reel-info"><h2>${film.name}</h2><p>${film.description}</p><button class="text-link" data-open-reel="${film.id}">Watch full scene <svg aria-hidden="true"><use href="#i-diagonal"/></svg></button></div></article>`).join('');
   function filterFilms(name) {
     let count = 0;
     $$('.reel').forEach(card => { card.hidden = name !== 'all' && !card.dataset.categories.split(' ').includes(name); if (!card.hidden) count++; });
@@ -322,9 +331,11 @@ import { resolveTokenConfig } from './token-config.mjs';
     $$('.reel-preview-video').forEach(v => v.pause());
   }
   $$('[data-reel-filter]').forEach(button => button.addEventListener('click', () => filterFilms(button.dataset.reelFilter)));
+  $('#studies-grid').innerHTML = films.filter(film => film.study).map((film, index) => `<article class="study-card" id="${film.id}"><button class="reel-media study-media" data-open-reel="${film.id}" aria-label="Watch ${film.name}"><img src="${film.poster}" alt="${film.description}" loading="lazy"><video class="reel-preview-video" data-src="${film.src}" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video><span class="reel-category">0${index + 1} / ${film.label}</span><span class="reel-play"><svg aria-hidden="true"><use href="#i-play"/></svg></span><span class="reel-time">${film.time}</span></button><div class="study-copy"><span class="eyebrow">VISUAL STUDY / 0${index + 1}</span><h3>${film.name}</h3><p>${film.description}</p><button class="text-link" data-open-reel="${film.id}">Watch the composition <svg aria-hidden="true"><use href="#i-diagonal"/></svg></button></div></article>`).join('');
   let cinemaTrigger = null;
   function openCinema(id, trigger) {
     const film = films.find(f => f.id === id); if (!film) return;
+    $('#process-video').pause();
     currentFilm = film; cinemaTrigger = trigger;
     $('#cinema-title').textContent = film.name;
     $('#cinema-label').textContent = `ERIKA / ${film.label.toUpperCase()} / ${film.time}`;
@@ -359,55 +370,72 @@ import { resolveTokenConfig } from './token-config.mjs';
     card.addEventListener('pointerleave', () => { video.pause(); video.classList.remove('playing'); });
   });
 
-  let publishedContract = null;
-  let tokenRequestPending = false;
-  let lastTokenRequest = 0;
-  function renderToken(config) {
-    const token = resolveTokenConfig(config);
-    publishedContract = token.contractAddress;
-    $('#contract-address').textContent = token.contractAddress || 'CONTRACT ADDRESS COMING SOON';
-    $('#copy-contract').disabled = !token.contractAddress;
-    $('#token-ticker').textContent = token.ticker || 'To be announced';
-    $('#contract-heading').textContent = token.contractAddress ? 'Keep the complete address.' : 'The next piece of the story.';
-    $('#contract-description').textContent = token.contractAddress ? 'Use the complete contract address to identify the matching token. Verify it before opening any token page.' : 'The contract has not been published yet. The published address and token page will appear here when launch details are ready.';
-    const buy = $('#token-buy');
-    buy.replaceChildren(document.createTextNode(token.live ? `Open on ${token.tradingPlatform} ` : 'Pump.fun · coming soon '));
-    buy.insertAdjacentHTML('beforeend', '<svg><use href="#i-diagonal"/></svg>');
-    buy.classList.toggle('disabled', !token.live);
-    if (token.live) {
-      buy.href = token.tradingUrl; buy.target = '_blank'; buy.rel = 'noopener noreferrer';
-      buy.removeAttribute('aria-disabled'); buy.removeAttribute('tabindex');
-    } else {
-      buy.removeAttribute('href'); buy.setAttribute('aria-disabled', 'true'); buy.setAttribute('tabindex', '-1');
-    }
-    $('#token-status').textContent = token.live ? 'CONTRACT & TRADING LINK PUBLISHED' : token.contractAddress ? 'CONTRACT AVAILABLE / TRADING LINK TO FOLLOW' : 'LAUNCH DETAILS COMING SOON';
-    $('#token-live-label').textContent = token.live ? 'Trading link available' : 'Coming soon';
-    $('#home-token-status').textContent = token.live ? 'EXPLORE THE TOKEN / SOLANA' : 'CONTRACT COMING SOON';
-    $('#join-token-status').textContent = token.live ? 'READY' : 'SOON';
-    $('#join-token-copy').textContent = token.live ? 'Check the complete address above, then open the published trading page.' : 'Once published, check the complete address on this page before opening its trading page.';
-    $('#token-community-copy').textContent = token.live ? 'A community token on Solana. The published contract and trading link are above; no wallet deposit is accepted on this site.' : 'A planned community token on Solana. Launch information will be published here; no presale or wallet deposit is open on this site.';
-    $('#faq-launch').textContent = token.live ? 'The contract address and trading page are published above. Verify the complete address and check the current token details on that platform.' : 'No complete launch details have been published on this site yet. The token section will update when they are provided.';
-    $('#faq-contract').textContent = token.live ? 'The complete address is in the contract panel above. Use Copy contract address and the published trading link to find the token.' : 'In the contract panel above. The complete address and trading link will be added together. There is no active purchase link until then.';
-    $('#token-bottom-status').textContent = token.live ? 'THE ADDRESS IS PUBLISHED. KEEP IT COMPLETE.' : 'STORY FIRST. CONTRACT DETAILS WHEN READY.';
+  const sheets = [
+    { id: 'signature', name: 'Pink signature', mood: 'STREET / THE FAMILIAR FACE', category: 'street', description: 'Grey, pink and black. A familiar character in a different silhouette.' },
+    { id: 'afterhours', name: 'Afterhours', mood: 'STREET / MIDNIGHT', category: 'street', description: 'Leather, silver details and a mood for after dark.' },
+    { id: 'neon-green', name: 'Neon green', mood: 'STREET / ELECTRIC', category: 'street', description: 'An electric accent on the same unmistakable silhouette.' },
+    { id: 'burgundy', name: 'Burgundy', mood: 'STREET / A DARKER MOOD', category: 'street', description: 'An asymmetric line and a deep burgundy layer.' },
+    { id: 'ivory-moto', name: 'Ivory moto', mood: 'STREET / SOFT CONTRAST', category: 'street', description: 'A light jacket, black cargos and heavy boots.' },
+    { id: 'velvet-night', name: 'Velvet night', mood: 'CINEMATIC / AFTER DARK', category: 'cinematic', description: 'Plum velvet, lace and a little silver.' },
+    { id: 'alpine', name: 'Alpine', mood: 'CINEMATIC / HIGH ALTITUDE', category: 'cinematic', description: 'Technical layers for a colder change of scene.' },
+    { id: 'emerald', name: 'Emerald', mood: 'CINEMATIC / SHARP LINES', category: 'cinematic', description: 'Emerald tailoring and a familiar wild fringe.' }
+  ];
+  $('#sheet-grid').innerHTML = sheets.map((sheet, index) => `<article class="sheet-card" data-sheet-category="${sheet.category}"><button class="sheet-image" data-open-sheet="${index}" aria-label="Open ${sheet.name} reference sheet"><span class="sheet-number">STUDY_${String(index + 1).padStart(2, '0')}</span><img src="assets/lookbook/${sheet.id}-front.webp" alt="Erika in the ${sheet.name} character study" loading="lazy"><span class="sheet-open">ALL ANGLES <span>↗</span></span></button><div class="sheet-card-copy"><h3>${sheet.name}</h3><span class="eyebrow">${sheet.mood}</span><p>${sheet.description}</p></div></article>`).join('');
+  let currentSheet = 0;
+  let sheetTrigger = null;
+  const sheetDialog = $('#sheet-dialog');
+  function showSheet(index, trigger) {
+    currentSheet = (index + sheets.length) % sheets.length;
+    if (trigger) sheetTrigger = trigger;
+    const sheet = sheets[currentSheet];
+    const source = `assets/lookbook/${sheet.id}-sheet.webp`;
+    $('#sheet-dialog-title').textContent = sheet.name;
+    $('#sheet-dialog-index').textContent = `CHARACTER STUDY / ${String(currentSheet + 1).padStart(2, '0')} OF 08`;
+    $('#sheet-dialog-image').src = source;
+    $('#sheet-dialog-image').alt = `${sheet.name}: complete Erika character sheet with multiple angles and expressions`;
+    $('#sheet-dialog-caption').textContent = sheet.description;
+    $('#download-sheet').href = source;
+    $('#download-sheet').download = `erika-mercer-${sheet.id}-reference.webp`;
+    if (!sheetDialog.open) { sheetDialog.showModal(); document.body.style.overflow = 'hidden'; }
   }
-  async function refreshToken() {
-    if (tokenRequestPending || Date.now() - lastTokenRequest < 1000) return;
-    tokenRequestPending = true; lastTokenRequest = Date.now();
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
-    try {
-      const response = await fetch('assets/token.json', { cache: 'no-store', signal: controller.signal });
-      if (!response.ok) return;
-      const config = await response.json();
-      if (config && typeof config === 'object' && !Array.isArray(config)) renderToken(config);
-    } catch { /* Keep the last published details when the connection is unavailable. */ }
-    finally { clearTimeout(timeout); tokenRequestPending = false; }
+  function closeSheet() {
+    sheetDialog.close(); document.body.style.overflow = '';
+    if (sheetTrigger?.isConnected) sheetTrigger.focus();
   }
-  refreshToken();
-  setInterval(() => { if (activeView === 'token' && !document.hidden) refreshToken(); }, 20000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshToken(); });
-  $('#copy-contract').addEventListener('click', async () => { if (publishedContract) toast(await copyText(publishedContract) ? 'Contract address copied.' : 'Select and copy the complete address above.'); });
-  $('#token-buy').addEventListener('click', event => { if ($('#token-buy').getAttribute('aria-disabled') === 'true') event.preventDefault(); });
+  $$('[data-open-sheet]').forEach(button => button.addEventListener('click', () => showSheet(Number(button.dataset.openSheet), button)));
+  $('#close-sheet').addEventListener('click', closeSheet);
+  $('#previous-sheet').addEventListener('click', () => showSheet(currentSheet - 1));
+  $('#next-sheet').addEventListener('click', () => showSheet(currentSheet + 1));
+  sheetDialog.addEventListener('cancel', event => { event.preventDefault(); closeSheet(); });
+  sheetDialog.addEventListener('click', event => { if (event.target === sheetDialog) { const box = sheetDialog.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) closeSheet(); } });
+  $$('[data-sheet-filter]').forEach(button => button.addEventListener('click', () => {
+    const filter = button.dataset.sheetFilter;
+    $$('[data-sheet-filter]').forEach(control => { const selected = control === button; control.classList.toggle('selected', selected); control.setAttribute('aria-pressed', String(selected)); });
+    $$('[data-sheet-category]').forEach(card => { card.hidden = filter !== 'all' && card.dataset.sheetCategory !== filter; });
+  }));
+  const chapters = {
+    identity: { number: '01', kicker: 'A CONSISTENT REFERENCE', title: 'Start with the face.', description: 'Hair, expression, proportions and attitude. A character reference gives each new image a familiar point of departure.', image: 'assets/portrait.jpg', alt: 'Erika portrait reference', caption: 'THE IDENTITY / ERIKA MERCER', link: '#wardrobe', action: 'Open the character archive' },
+    look: { number: '02', kicker: 'A WARDROBE OF POSSIBILITIES', title: 'Find the silhouette.', description: 'Material, colour, layers and detail change the mood. A sheet records the outfit from different angles while keeping the character recognisable.', image: 'assets/lookbook/signature-sheet.webp', alt: 'Pink signature reference with different angles and facial expressions', caption: 'THE LOOK / CHARACTER TURNAROUND', link: '#character-studies', action: 'Explore every look' },
+    world: { number: '03', kicker: 'A PLACE FOR THE STORY', title: 'Change the setting.', description: 'Light, atmosphere and a sense of place turn a reference into a scene. Try the paper studio, a rooftop at sunset or the Dolomites.', image: 'assets/studio/scene-dolomites.webp', alt: 'Alpine landscape for a change of scene', caption: 'THE WORLD / THE DOLOMITES', link: '#studio', action: 'Build your own scene' },
+    motion: { number: '04', kicker: 'A LITTLE LIFE IN THE FRAME', title: 'Let the scene move.', description: 'Framing, rhythm and a short moment of action bring the character into a story. These motion studies place the moving scene next to its visual reference.', image: null, alt: '', caption: 'THE MOTION / REFERENCE + FILM', link: '#motion-studies', action: 'Watch the motion studies' }
+  };
+  $$('[data-process]').forEach(button => button.addEventListener('click', () => {
+    currentProcess = button.dataset.process;
+    const chapter = chapters[currentProcess];
+    $$('[data-process]').forEach(control => { const selected = control === button; control.classList.toggle('selected', selected); control.setAttribute('aria-pressed', String(selected)); });
+    $('#process-kicker').textContent = `${chapter.number} / ${chapter.kicker}`;
+    $('#process-title').textContent = chapter.title;
+    $('#process-description').textContent = chapter.description;
+    $('#process-caption').textContent = chapter.caption;
+    $('#process-number').textContent = chapter.number;
+    $('.process-stage').dataset.chapter = currentProcess;
+    $('#process-link').href = chapter.link;
+    $('#process-link').replaceChildren(document.createTextNode(`${chapter.action} `));
+    $('#process-link').insertAdjacentHTML('beforeend', '<svg><use href="#i-diagonal"/></svg>');
+    $('#process-image').hidden = currentProcess === 'motion'; processVideo.hidden = currentProcess !== 'motion';
+    if (chapter.image) { $('#process-image').src = chapter.image; $('#process-image').alt = chapter.alt; }
+    startHero();
+  }));
 
   function attachTilt(element, transform, reset) {
     let frame;
@@ -423,6 +451,7 @@ import { resolveTokenConfig } from './token-config.mjs';
   attachTilt($('#hero-art'), (x,y) => { $('#hero-art').style.transform = `perspective(1200px) rotate(1deg) rotateY(${x*5}deg) rotateX(${-y*5}deg)`; }, () => { $('#hero-art').style.transform = ''; });
   attachTilt($('#studio-stage'), (x,y) => { $('#scene-background').style.transform = `scale(1.025) translate(${x*-12}px,${y*-8}px)`; $('#stage-figure-wrap').style.transform = `translate(${x*7}px,${y*4}px)`; }, () => { $('#scene-background').style.transform = ''; $('#stage-figure-wrap').style.transform = ''; });
   document.addEventListener('keydown', event => {
+    if (sheetDialog.open && ['ArrowLeft', 'ArrowRight'].includes(event.key)) { event.preventDefault(); showSheet(currentSheet + (event.key === 'ArrowRight' ? 1 : -1)); return; }
     if (event.key === 'Escape' && $('#studio-stage').classList.contains('expanded')) { toggleStage(false); return; }
     if (event.key === 'Tab' && $('#studio-stage').classList.contains('expanded')) { event.preventDefault(); $('#stage-fullscreen').focus(); return; }
     if (activeView !== 'studio' || event.altKey || event.metaKey || event.ctrlKey || event.target.closest('input,textarea,select,.main-nav')) return;
