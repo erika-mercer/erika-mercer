@@ -1,35 +1,41 @@
 <p align="center">
-  <img src="assets/erika-banner.svg" alt="Erika Mercer — AI character and short-form stories" width="100%">
+  <img src="assets/cover.png" width="100%" alt="Erika Mercer — an AI character for short-form stories">
 </p>
 
 <p align="center">
-  <a href="https://www.tiktok.com/@erika.mercer">TikTok</a> &nbsp;·&nbsp;
-  <a href="https://www.instagram.com/erika.mercer2006/">Instagram</a>
+  <a href="https://www.tiktok.com/@erika.mercer"><strong>TIKTOK ↗</strong></a>
+  &nbsp;&nbsp; / &nbsp;&nbsp;
+  <a href="https://www.instagram.com/erika.mercer2006/"><strong>INSTAGRAM ↗</strong></a>
 </p>
 
-### Meet Erika
+<p align="center"><em>She doesn't exist. Her stories do.</em></p>
 
-Erika Mercer is an AI character built for short-form stories with a little chaos. One moment it's a dance-off; the next it's a mountain, a cat, or a challenge nobody asked for. The look stays unmistakable: dark hair, a bold **M**, and main-character energy.
+<p align="center">
+  <img src="assets/filmstrip.png" width="100%" alt="Six scenes from Erika Mercer videos: portrait, dance, mountains, sunset, cat and parkour">
+</p>
 
-<p align="center"><strong>AI character &nbsp;✦&nbsp; Visual storytelling &nbsp;✦&nbsp; Made with Higgsfield</strong></p>
+### the character
 
-### Frames from the story
+Erika Mercer is a fictional, AI-created character with a look you can spot in a second: dark hair, a bold **M**, black cargos and a taste for improbable situations. She can be in a quiet room, on a mountain, beside a cat or mid-challenge — and still feel like the same person in the same unfolding story.
 
-<table>
-  <tr>
-    <td align="center"><img src="assets/city.jpg" alt="Erika celebrating outside at sunset" width="210"><br><sub>Sunset energy</sub></td>
-    <td align="center"><img src="assets/portrait.jpg" alt="Close-up portrait of Erika" width="210"><br><sub>The face behind the M</sub></td>
-    <td align="center"><img src="assets/mountains.jpg" alt="Erika dancing in front of mountains" width="210"><br><sub>Move mountains</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="assets/family.jpg" alt="Erika dancing with Derek" width="210"><br><sub>Runs in the family</sub></td>
-    <td align="center"><img src="assets/cat.jpg" alt="Erika with a cat at sunset" width="210"><br><sub>Scaredy cat?</sub></td>
-    <td align="center"><img src="assets/parkour.jpg" alt="Erika mid-jump in a parkour scene" width="210"><br><sub>Mercer genetics</sub></td>
-  </tr>
-</table>
+The clips are short, playful and built around one simple idea: **a familiar face in an unfamiliar scene**. Dance, rivalry, tiny jokes and impossible moments keep the world moving.
 
-### Start watching
+<p align="center">
+  <img src="assets/receipts.png" width="100%" alt="Public TikTok snapshot from 12 October 2026 and the visual storytelling concept">
+</p>
 
-<a href="https://www.tiktok.com/@erika.mercer/video/7694616778479029534">Mercer genetics</a> · <a href="https://www.tiktok.com/@erika.mercer/video/7693489904881241357">Runs in the family</a> · <a href="https://www.tiktok.com/@erika.mercer/video/7695000440500407583">F around and find out</a>
+### start watching
 
-<p align="center"><sub>Fictional character. Real creative work. More to come.</sub></p>
+| scene | story |
+| :--- | :--- |
+| **[Mercer genetics ↗](https://www.tiktok.com/@erika.mercer/video/7694616778479029534)** | An action scene with a punchline. |
+| **[Runs in the family ↗](https://www.tiktok.com/@erika.mercer/video/7693489904881241357)** | Two Mercers, one room, plenty of attitude. |
+| **[F around and find out ↗](https://www.tiktok.com/@erika.mercer/video/7695000440500407583)** | The sparring side of Erika's world. |
+
+### behind the frame
+
+The Instagram bio credits **[@higgsfield.ai](https://www.instagram.com/higgsfield.ai/)**, and some Reels carry `#higgsfieldpartner`. The character and visual format are an ongoing experiment in AI-assisted, short-form storytelling.
+
+For creative enquiries, find Erika on **[Instagram](https://www.instagram.com/erika.mercer2006/)** or **[TikTok](https://www.tiktok.com/@erika.mercer)**.
+
+<p align="center"><sub>Fictional character · Real creative work · Public figures above are an approximate snapshot from 12 October 2026.</sub></p>
