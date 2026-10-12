@@ -1,3 +1,5 @@
+import { resolveTokenConfig } from './token-config.mjs';
+
 (() => {
   'use strict';
   const $ = (s, root = document) => root.querySelector(s);
@@ -89,6 +91,7 @@
     $$('.reel-preview-video').forEach(v => v.pause());
     startHero();
     if (name === 'studio') updateStudio(false);
+    if (name === 'token') refreshToken();
     if (scroll) window.scrollTo({ top: 0, behavior: 'instant' });
     document.title = name === 'world' ? 'Erika Mercer · The other Mercer' : `${({studio:'Studio',wardrobe:'Wardrobe',reels:'Film room',token:'Erika Club token'})[name]} · Erika Mercer`;
   }
@@ -356,26 +359,54 @@
     card.addEventListener('pointerleave', () => { video.pause(); video.classList.remove('playing'); });
   });
 
-  let verifiedContract = null;
-  fetch('assets/token.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error('Token details unavailable'); return r.json(); }).then(config => {
-    const ca = typeof config.contractAddress === 'string' ? config.contractAddress.trim() : '';
-    if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(ca)) return;
-    verifiedContract = ca;
-    $('#contract-address').textContent = ca;
-    $('#contract-heading').textContent = 'Keep the complete address.';
-    $('#contract-description').textContent = 'Use the complete contract address to identify the matching token. Verify it before opening any token page.';
-    $('#copy-contract').disabled = false;
-    $('#token-ticker').textContent = config.ticker ? String(config.ticker).slice(0, 20) : 'To be announced';
-    let pumpUrl;
-    try { const u = new URL(config.pumpUrl); if (u.protocol === 'https:' && ['pump.fun', 'www.pump.fun'].includes(u.hostname) && u.pathname.includes(ca)) pumpUrl = u.href; } catch {}
-    if (config.launchStatus === 'live' && pumpUrl) {
-      const buy = $('#token-buy'); buy.href = pumpUrl; buy.target = '_blank'; buy.rel = 'noopener'; buy.classList.remove('disabled'); buy.removeAttribute('aria-disabled'); buy.removeAttribute('tabindex');
-      buy.innerHTML = 'Open token on Pump.fun <svg><use href="#i-diagonal"/></svg>';
-      $('#token-status').textContent = 'CONTRACT PUBLISHED'; $('#token-live-label').textContent = 'Contract published';
-      $('#faq-launch').textContent = 'A contract address and matching Pump.fun page are now published above. Always verify the complete address.';
-    } else { $('#token-status').textContent = 'CONTRACT AVAILABLE / LAUNCH DETAILS TO FOLLOW'; }
-  }).catch(() => {});
-  $('#copy-contract').addEventListener('click', async () => { if (verifiedContract) toast(await copyText(verifiedContract) ? 'Contract address copied.' : 'Select and copy the complete address above.'); });
+  let publishedContract = null;
+  let tokenRequestPending = false;
+  let lastTokenRequest = 0;
+  function renderToken(config) {
+    const token = resolveTokenConfig(config);
+    publishedContract = token.contractAddress;
+    $('#contract-address').textContent = token.contractAddress || 'CONTRACT ADDRESS COMING SOON';
+    $('#copy-contract').disabled = !token.contractAddress;
+    $('#token-ticker').textContent = token.ticker || 'To be announced';
+    $('#contract-heading').textContent = token.contractAddress ? 'Keep the complete address.' : 'The next piece of the story.';
+    $('#contract-description').textContent = token.contractAddress ? 'Use the complete contract address to identify the matching token. Verify it before opening any token page.' : 'The contract has not been published yet. The published address and token page will appear here when launch details are ready.';
+    const buy = $('#token-buy');
+    buy.replaceChildren(document.createTextNode(token.live ? `Open on ${token.tradingPlatform} ` : 'Pump.fun · coming soon '));
+    buy.insertAdjacentHTML('beforeend', '<svg><use href="#i-diagonal"/></svg>');
+    buy.classList.toggle('disabled', !token.live);
+    if (token.live) {
+      buy.href = token.tradingUrl; buy.target = '_blank'; buy.rel = 'noopener noreferrer';
+      buy.removeAttribute('aria-disabled'); buy.removeAttribute('tabindex');
+    } else {
+      buy.removeAttribute('href'); buy.setAttribute('aria-disabled', 'true'); buy.setAttribute('tabindex', '-1');
+    }
+    $('#token-status').textContent = token.live ? 'CONTRACT & TRADING LINK PUBLISHED' : token.contractAddress ? 'CONTRACT AVAILABLE / TRADING LINK TO FOLLOW' : 'LAUNCH DETAILS COMING SOON';
+    $('#token-live-label').textContent = token.live ? 'Trading link available' : 'Coming soon';
+    $('#home-token-status').textContent = token.live ? 'EXPLORE THE TOKEN / SOLANA' : 'CONTRACT COMING SOON';
+    $('#join-token-status').textContent = token.live ? 'READY' : 'SOON';
+    $('#join-token-copy').textContent = token.live ? 'Check the complete address above, then open the published trading page.' : 'Once published, check the complete address on this page before opening its trading page.';
+    $('#token-community-copy').textContent = token.live ? 'A community token on Solana. The published contract and trading link are above; no wallet deposit is accepted on this site.' : 'A planned community token on Solana. Launch information will be published here; no presale or wallet deposit is open on this site.';
+    $('#faq-launch').textContent = token.live ? 'The contract address and trading page are published above. Verify the complete address and check the current token details on that platform.' : 'No complete launch details have been published on this site yet. The token section will update when they are provided.';
+    $('#faq-contract').textContent = token.live ? 'The complete address is in the contract panel above. Use Copy contract address and the published trading link to find the token.' : 'In the contract panel above. The complete address and trading link will be added together. There is no active purchase link until then.';
+    $('#token-bottom-status').textContent = token.live ? 'THE ADDRESS IS PUBLISHED. KEEP IT COMPLETE.' : 'STORY FIRST. CONTRACT DETAILS WHEN READY.';
+  }
+  async function refreshToken() {
+    if (tokenRequestPending || Date.now() - lastTokenRequest < 1000) return;
+    tokenRequestPending = true; lastTokenRequest = Date.now();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch('assets/token.json', { cache: 'no-store', signal: controller.signal });
+      if (!response.ok) return;
+      const config = await response.json();
+      if (config && typeof config === 'object' && !Array.isArray(config)) renderToken(config);
+    } catch { /* Keep the last published details when the connection is unavailable. */ }
+    finally { clearTimeout(timeout); tokenRequestPending = false; }
+  }
+  refreshToken();
+  setInterval(() => { if (activeView === 'token' && !document.hidden) refreshToken(); }, 20000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshToken(); });
+  $('#copy-contract').addEventListener('click', async () => { if (publishedContract) toast(await copyText(publishedContract) ? 'Contract address copied.' : 'Select and copy the complete address above.'); });
   $('#token-buy').addEventListener('click', event => { if ($('#token-buy').getAttribute('aria-disabled') === 'true') event.preventDefault(); });
 
   function attachTilt(element, transform, reset) {
