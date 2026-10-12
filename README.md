@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/cover.png" width="100%" alt="Erika Mercer — an AI character for short-form stories">
+  <img src="assets/cover-v2.png" width="100%" alt="Erika Mercer — an AI character for short-form stories">
 </p>
 
 <p align="center">
@@ -24,13 +24,19 @@ The clips are short, playful and built around one simple idea: **a familiar face
   <img src="assets/receipts.png" width="100%" alt="Public TikTok snapshot from 12 October 2026 and the visual storytelling concept">
 </p>
 
-### start watching
+### watch Erika move
 
-| scene | story |
-| :--- | :--- |
-| **[Mercer genetics ↗](https://www.tiktok.com/@erika.mercer/video/7694616778479029534)** | An action scene with a punchline. |
-| **[Runs in the family ↗](https://www.tiktok.com/@erika.mercer/video/7693489904881241357)** | Two Mercers, one room, plenty of attitude. |
-| **[F around and find out ↗](https://www.tiktok.com/@erika.mercer/video/7695000440500407583)** | The sparring side of Erika's world. |
+<p align="center"><em>Three scenes. Press a preview to watch the full clip with sound.</em></p>
+
+<table>
+<tr>
+<td align="center" width="33%"><a href="https://erika-mercer.github.io/erika-mercer/#mercer-genetics"><img src="assets/previews/mercer-genetics.gif" width="220" alt="Animated preview of Mercer genetics"></a><br><a href="https://erika-mercer.github.io/erika-mercer/#mercer-genetics"><strong>▶ Mercer genetics</strong></a></td>
+<td align="center" width="33%"><a href="https://erika-mercer.github.io/erika-mercer/#runs-in-the-family"><img src="assets/previews/runs-in-the-family.gif" width="220" alt="Animated preview of Runs in the family"></a><br><a href="https://erika-mercer.github.io/erika-mercer/#runs-in-the-family"><strong>▶ Runs in the family</strong></a></td>
+<td align="center" width="33%"><a href="https://erika-mercer.github.io/erika-mercer/#move-mountains"><img src="assets/previews/move-mountains.gif" width="220" alt="Animated preview of Move mountains"></a><br><a href="https://erika-mercer.github.io/erika-mercer/#move-mountains"><strong>▶ Move mountains</strong></a></td>
+</tr>
+</table>
+
+<p align="center"><a href="https://erika-mercer.github.io/erika-mercer/"><strong>OPEN THE VIDEO GALLERY ↗</strong></a></p>
 
 ### behind the frame
 
