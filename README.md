@@ -6,6 +6,8 @@
   <a href="https://www.tiktok.com/@erika.mercer"><strong>TIKTOK ↗</strong></a>
   &nbsp;&nbsp; / &nbsp;&nbsp;
   <a href="https://www.instagram.com/erika.mercer2006/"><strong>INSTAGRAM ↗</strong></a>
+  &nbsp;&nbsp; / &nbsp;&nbsp;
+  <a href="https://erikamercer.club/"><strong>ERIKA CLUB ↗</strong></a>
 </p>
 
 <p align="center"><em>She doesn't exist. Her stories do.</em></p>
