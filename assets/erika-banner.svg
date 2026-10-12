@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-labelledby="title desc">
+  <title id="title">Erika Mercer</title>
+  <desc id="desc">A dark editorial banner with magenta and lime accents for an AI character and short-form video series.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111015"/>
+      <stop offset="0.55" stop-color="#1e1724"/>
+      <stop offset="1" stop-color="#111015"/>
+    </linearGradient>
+    <linearGradient id="pink" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f971ba"/>
+      <stop offset="1" stop-color="#e54493"/>
+    </linearGradient>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M 36 0 L 0 0 0 36" fill="none" stroke="#ffffff" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="300" fill="url(#bg)"/>
+  <rect width="1200" height="300" fill="url(#grid)"/>
+  <circle cx="1065" cy="150" r="178" fill="none" stroke="#f55caa" stroke-opacity="0.14" stroke-width="1"/>
+  <circle cx="1065" cy="150" r="138" fill="none" stroke="#f55caa" stroke-opacity="0.2" stroke-width="1"/>
+  <circle cx="1065" cy="150" r="97" fill="none" stroke="#c5f16d" stroke-opacity="0.35" stroke-width="1"/>
+  <path d="M 926 0 L 890 300 M 1140 0 L 1104 300" stroke="#ffffff" stroke-opacity="0.05" stroke-width="1"/>
+  <rect x="70" y="56" width="64" height="5" rx="2" fill="#c5f16d"/>
+  <text x="70" y="109" fill="#c5f16d" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="5">AI CHARACTER  /  SHORT-FORM STORIES</text>
+  <text x="66" y="207" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="77" font-weight="900" letter-spacing="-3">ERIKA <tspan fill="url(#pink)">MERCER</tspan></text>
+  <text x="70" y="250" fill="#d9cfda" font-family="Arial, Helvetica, sans-serif" font-size="20" letter-spacing="1">Strength. Story. A little chaos.</text>
+  <text x="1000" y="205" fill="url(#pink)" font-family="Arial, Helvetica, sans-serif" font-size="167" font-weight="900" text-anchor="middle" opacity="0.86">M</text>
+  <rect x="70" y="275" width="460" height="2" rx="1" fill="url(#pink)"/>
+  <circle cx="559" cy="276" r="4" fill="#c5f16d"/>
+</svg>
